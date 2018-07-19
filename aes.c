@@ -499,6 +499,21 @@ void AES_CBC_encrypt_buffer(struct AES_ctx *ctx,uint8_t* buf, uint32_t length)
 {
   uintptr_t i;
   uint8_t *Iv = ctx->Iv;
+	
+/****************pkcs7 padding **************/
+  uint8_t extra = length % AES_BLOCKLEN; /* Remaining bytes in the last non-full block */
+  uint8_t arr_pad[16];   //arr_pad[16]={0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0a,0x0b,0x0c,0x0d,0x0e,0x0f,0x10};
+  for(i=0;i<16;i++)
+  {
+    arr_pad[i] = i+1;
+  }   
+  for (int i = 0; i < (AES_BLOCKLEN-extra); i++)
+  {
+    buf[length+i] = arr_pad[AES_BLOCKLEN-extra- 1];
+  }
+  length=length+(AES_BLOCKLEN-extra);
+/*****************padding end *************/
+	
   for (i = 0; i < length; i += AES_BLOCKLEN)
   {
     XorWithIv(buf, Iv);
